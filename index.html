@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🪄 현대판 도깨비 방망이 - 1초 앱 개발</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 70%, #533483 100%);
+            color: white; min-height: 100vh; overflow-x: hidden;
+        }
+        
+        .hero {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 2rem; position: relative;
+        }
+        
+        .magic-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 105, 180, 0.1) 0%, transparent 50%);
+            animation: magicGlow 4s ease-in-out infinite alternate;
+        }
+        
+        @keyframes magicGlow {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        .hero-content {
+            position: relative; z-index: 2; max-width: 900px;
+        }
+        
+        .magic-wand {
+            font-size: 6rem; margin-bottom: 2rem; display: inline-block;
+            animation: magicSpin 3s ease-in-out infinite;
+        }
+        
+        @keyframes magicSpin {
+            0%, 100% { transform: rotate(-10deg) scale(1); }
+            25% { transform: rotate(10deg) scale(1.1); }
+            50% { transform: rotate(-5deg) scale(1.05); }
+            75% { transform: rotate(15deg) scale(1.1); }
+        }
+        
+        .hero h1 {
+            font-size: 4rem; margin-bottom: 1rem; font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ff69b4, #00bfff, #ffd700);
+            background-size: 400% 400%;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            animation: magicText 3s ease-in-out infinite;
+        }
+        
+        @keyframes magicText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .magic-spell {
+            font-size: 2rem; margin: 2rem 0; color: #ffd700;
+            text-shadow: 0 0 20px #ffd700; animation: sparkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700; }
+            50% { text-shadow: 0 0 40px #ffd700, 0 0 60px #ffd700, 0 0 80px #ffd700; }
+        }
+        
+        .demo-area {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            border-radius: 30px; padding: 3rem; margin: 3rem 0;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            position: relative; overflow: hidden;
+        }
+        
+        .demo-area::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
+            animation: magicSweep 3s linear infinite;
+        }
+        
+        @keyframes magicSweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .input-area {
+            position: relative; z-index: 2; margin-bottom: 2rem;
+        }
+        
+        .magic-input {
+            width: 100%; padding: 1.5rem; font-size: 1.3rem;
+            border: 3px solid #ffd700; border-radius: 25px;
+            background: rgba(0, 0, 0, 0.3); color: white;
+            text-align: center; outline: none;
+        }
+        
+        .magic-input::placeholder {
+            color: #ffd700; opacity: 0.7;
+        }
+        
+        .magic-button {
+            background: linear-gradient(45deg, #ffd700, #ff69b4);
+            color: #1a1a2e; padding: 1.5rem 3rem; border: none;
+            border-radius: 50px; font-size: 1.5rem; font-weight: bold;
+            cursor: pointer; margin: 1rem; position: relative;
+            transition: all 0.3s ease; overflow: hidden;
+        }
+        
+        .magic-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.4);
+        }
+        
+        .magic-button::before {
+            content: '✨'; position: absolute; top: 50%; left: -30px;
+            transform: translateY(-50%); font-size: 2rem;
+            animation: magicSparkles 2s ease-in-out infinite;
+        }
+        
+        @keyframes magicSparkles {
+            0%, 100% { left: -30px; opacity: 0; }
+            50% { left: 20px; opacity: 1; }
+        }
+        
+        .result-area {
+            min-height: 300px; background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px; padding: 2rem; margin-top: 2rem;
+            border: 2px dashed rgba(255, 215, 0, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; position: relative;
+        }
+        
+        .magic-loading {
+            font-size: 3rem; margin-bottom: 1rem;
+            animation: magicSpin 2s linear infinite;
+        }
+        
+        .comparison {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 3rem; margin: 4rem 0; position: relative;
+        }
+
+        .vs-divider {
+            position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -50%); font-size: 3rem;
+            background-color: #1a1a2e; border-radius: 50%;
+            width: 100px; height: 100px; display: flex; align-items: center;
+            justify-content: center; border: 3px solid #ffd700;
+        }
+
+        .order-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #533483 100%);
+            padding: 3rem; border-radius: 20px; max-width: 600px;
+            width: 90%; position: relative; color: white;
+            border: 2px solid #ffd700; max-height: 80vh; overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute; top: 1rem; right: 1rem;
+            background: #ff6b6b; color: white; border: none;
+            border-radius: 50%; width: 40px; height: 40px;
+            cursor: pointer; font-size: 1.5rem; font-weight: bold;
+        }
+
+        .order-step {
+            margin: 2rem 0; padding: 1.5rem;
+            background: rgba(255, 215, 0, 0.1); border-radius: 15px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .price-option {
+            background: rgba(255, 215, 0, 0.2); padding: 1.5rem;
+            border-radius: 15px; margin: 1rem 0; cursor: pointer;
+            border: 2px solid transparent; transition: all 0.3s ease;
+        }
+
+        .price-option:hover {
+            border-color: #ffd700; transform: scale(1.02);
+        }
+
+        .price-option.selected {
+            border-color: #ffd700; background: rgba(255, 215, 0, 0.3);
+        }
+
+        .contact-form {
+            background: rgba(0, 0, 0, 0.3); padding: 2rem;
+            border-radius: 15px; margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block; margin-bottom: 0.5rem;
+            color: #ffd700; font-weight: bold;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 1rem; border: 2px solid #ffd700;
+            border-radius: 10px; background: rgba(255, 255, 255, 0.1);
+            color: white; font-size: 1rem;
+        }
+
+        .form-group input::placeholder, .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chatbot-widget {
+            position: fixed; bottom: 20px; right: 20px; z-index: 999;
+        }
+
+        .chatbot-button {
+            background: linear-gradient(45deg, #ffd700, #ff69b4);
+            border: none; border-radius: 50%; width: 60px; height: 60px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+            font-size: 1.5rem; animation: chatbotPulse 2s infinite;
+        }
+
+        @keyframes chatbotPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .chatbot-popup {
+            display: none; position: absolute; bottom: 70px; right: 0;
+            width: 350px; height: 500px; background: linear-gradient(135deg, #1a1a2e, #533483);
+            border-radius: 20px; border: 2px solid #ffd700; overflow: hidden;
+        }
+
+        .chatbot-header {
+            background: #ffd700; color: #1a1a2e; padding: 1rem;
+            text-align: center; font-weight: bold;
+        }
+
+        .chatbot-body {
+            padding: 1rem; height: 350px; overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .chatbot-input {
+            padding: 1rem; background: rgba(255, 215, 0, 0.1);
+            border-top: 1px solid #ffd700;
+        }
+
+        .chatbot-input input {
+            width: 100%; padding: 0.8rem; border: 1px solid #ffd700;
+            border-radius: 20px; background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .chat-message {
+            margin: 1rem 0; padding: 0.8rem; border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .bot-message {
+            background: rgba(255, 215, 0, 0.2); color: white;
+            margin-right: auto;
+        }
+
+        .user-message {
+            background: rgba(255, 105, 180, 0.3); color: white;
+            margin-left: auto; text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .modal-content { padding: 2rem; }
+            .chatbot-popup { width: 300px; height: 400px; }
+            .chatbot-body { height: 250px; }
+        }
+            background: linear-gradient(45deg, #ffd700, #ff69b4);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            z-index: 3; padding: 1rem;
+            background-color: #1a1a2e; border-radius: 50%;
+        }
+        
+        .old-way, .new-way {
+            background: rgba(255, 255, 255, 0.1); padding: 2rem;
+            border-radius: 20px; text-align: center;
+        }
+        
+        .old-way {
+            border: 2px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        .new-way {
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+        
+        .timeline {
+            display: flex; justify-content: space-between; margin: 2rem 0;
+            padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 15px;
+        }
+        
+        .timeline-item {
+            text-align: center; flex: 1;
+        }
+        
+        .old-timeline .timeline-item {
+            color: #ff6b6b;
+        }
+        
+        .new-timeline .timeline-item {
+            color: #ffd700; font-weight: bold;
+        }
+        
+        .features {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem; margin: 4rem 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1); padding: 2rem;
+            border-radius: 20px; text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem; margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .comparison { grid-template-columns: 1fr; }
+            .vs-divider { position: static; transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="magic-bg"></div>
+        <div class="hero-content">
+            <div class="magic-wand">🪄</div>
+            <h1>현대판 도깨비 방망이</h1>
+            <div class="magic-spell">"뚝딱뚝딱 앱 나와라 뚝딱!"</div>
+            <p style="font-size: 1.3rem; margin-bottom: 3rem; opacity: 0.9;">
+                옛날엔 금이 나왔지만, 지금은 더 귀한 앱이 나옵니다! ✨
+            </p>
+            
+            <div class="demo-area">
+                <div class="input-area">
+                    <input type="text" class="magic-input" placeholder="어떤 앱을 만들고 싶으신가요? (예: 배달 앱, 학습 관리 앱)" id="appIdea">
+                </div>
+                <button class="magic-button" onclick="castMagic()">🪄 도깨비 방망이 휘두르기!</button>
+                <button class="magic-button" onclick="openOrderModal()" style="background: linear-gradient(45deg, #ff69b4, #ffd700); margin-left: 1rem;">
+                    🛒 지금 주문하기
+                </button>
+                <div class="result-area" id="resultArea">
+                    <div style="opacity: 0.7;">
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">✨</div>
+                        <p>위에 앱 아이디어를 입력하고 방망이를 휘둘러보세요!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <section style="padding: 4rem 2rem; max-width: 1200px; margin: 0 auto;">
+        <h2 style="text-align: center; font-size: 3rem; margin-bottom: 3rem; color: #ffd700;">
+            🪄 도깨비 방망이 vs 전통적 개발
+        </h2>
+        
+        <div class="comparison">
+            <div class="old-way">
+                <h3 style="color: #ff6b6b; margin-bottom: 2rem;">😤 전통적 개발팀</h3>
+                <div class="timeline old-timeline">
+                    <div class="timeline-item">
+                        <div>1주</div>
+                        <div>기획</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div>6주</div>
+                        <div>개발</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div>2주</div>
+                        <div>테스트</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div>1주</div>
+                        <div>배포</div>
+                    </div>
+                </div>
+                <div style="font-size: 1.5rem; color: #ff6b6b; font-weight: bold;">총 10주 + 5,000만원</div>
+                <div style="margin-top: 1rem; opacity: 0.8;">"결과는 10주 후에 확인 가능합니다..."</div>
+            </div>
+            
+            <div class="vs-divider">VS</div>
+            
+            <div class="new-way">
+                <h3 style="color: #ffd700; margin-bottom: 2rem;">🪄 도깨비 방망이</h3>
+                <div class="timeline new-timeline">
+                    <div class="timeline-item">
+                        <div>1초</div>
+                        <div>완성!</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div>즉시</div>
+                        <div>데모</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div>바로</div>
+                        <div>수정</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div>곧장</div>
+                        <div>배포</div>
+                    </div>
+                </div>
+                <div style="font-size: 1.5rem; color: #ffd700; font-weight: bold;">총 1초 + 합리적 가격</div>
+                <div style="margin-top: 1rem; opacity: 0.9;">"뚝딱! 지금 바로 보여드릴게요!"</div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>1초 생성</h3>
+                <p>도깨비 방망이보다 빠른 속도로 완전한 앱을 생성합니다</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💎</div>
+                <h3>Supreme Pro 품질</h3>
+                <p>CI/CD, 모니터링, Kubernetes까지 포함된 엔터프라이즈급 품질</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>무제한 버전</h3>
+                <p>마음에 안 들면 뚝딱! 새로운 버전을 즉시 생성</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>즉시 배포</h3>
+                <p>생성과 동시에 배포 준비 완료! 바로 투자 피칭 가능</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 4rem 0; padding: 3rem; background: rgba(255, 215, 0, 0.1); border-radius: 30px;">
+            <h2 style="color: #ffd700; margin-bottom: 2rem;">🎉 특별 이벤트</h2>
+            <div style="font-size: 1.5rem; margin-bottom: 2rem;">
+                매주 금요일 오후 2시 <strong>"도깨비 방망이 라이브 쇼"</strong>
+            </div>
+            <p style="margin-bottom: 2rem; opacity: 0.9;">
+                참가자가 아이디어를 제시하면 실시간으로 뚝딱! 앱을 만들어드립니다
+            </p>
+            
+            <!-- 10개 Pro 앱 포트폴리오 섹션 추가 -->
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0;">
+                <h3 style="color: #ffd700; margin-bottom: 1.5rem;">🚀 실제 완성된 10개 Pro 앱 포트폴리오</h3>
+                <p style="margin-bottom: 1.5rem; opacity: 0.9;">👆 아래 앱들을 클릭하면 실제 완성된 앱을 바로 체험할 수 있어요!</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <a href="PersonalizeMePro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">👤</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">PersonalizeMePro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 개인화 추천</div>
+                    </a>
+                    <a href="StudyMePro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">📚</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">StudyMePro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 학습 관리</div>
+                    </a>
+                    <a href="SmartParkingPro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">🚗</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">SmartParkingPro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">스마트 주차</div>
+                    </a>
+                    <a href="HealthMePro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">💊</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">HealthMePro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 건강 관리</div>
+                    </a>
+                    <a href="FoodDecisionPro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">🍽️</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">FoodDecisionPro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 음식 추천</div>
+                    </a>
+                    <a href="PastaMasterPro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">🍝</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">PastaMasterPro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AR 요리 가이드</div>
+                    </a>
+                    <a href="ProjectManagerPro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">📋</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">ProjectManagerPro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">팀 협업 관리</div>
+                    </a>
+                    <a href="MindScapePro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">🧠</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">MindScapePro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 멘탈 케어</div>
+                    </a>
+                    <a href="FitnessTrackerPro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">💪</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">FitnessTrackerPro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 자세 분석</div>
+                    </a>
+                    <a href="AiStylePro/index.html" target="_blank" style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px; text-decoration: none; color: white; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="font-size: 2rem;">👗</div>
+                        <div style="font-weight: bold; font-size: 0.9rem;">AiStylePro</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">AI 패션 스타일링</div>
+                    </a>
+                </div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <a href="index.html" target="_blank" style="background: linear-gradient(45deg, #ffd700, #ff69b4); color: #1a1a2e; padding: 1rem 2rem; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 0.5rem; display: inline-block;">
+                        🚀 전체 포트폴리오 보기
+                    </a>
+                    <a href="크몽랜딩페이지.html" target="_blank" style="background: linear-gradient(45deg, #ff69b4, #ffd700); color: #1a1a2e; padding: 1rem 2rem; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 0.5rem; display: inline-block;">
+                        📋 크몽 상세 정보 보기
+                    </a>
+                </div>
+            </div>
+            
+            <button style="background: linear-gradient(45deg, #ffd700, #ff69b4); color: #1a1a2e; padding: 1rem 2rem; border: none; border-radius: 25px; font-size: 1.2rem; font-weight: bold; cursor: pointer;" onclick="alert('🎉 다음 라이브 쇼 참가 신청이 완료되었습니다! 금요일 오후 2시에 만나요!')">
+                🪄 라이브 쇼 참가 신청
+            </button>
+        </div>
+    </section>
+
+    <!-- 주문 모달 -->
+    <div id="orderModal" class="order-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeOrderModal()">×</button>
+            <h2 style="text-align: center; color: #ffd700; margin-bottom: 2rem;">🪄 뚝딱뚝딱 도깨비방망이 주문</h2>
+            
+            <div class="order-step">
+                <h3>📱 상품 선택</h3>
+                <div class="price-option" onclick="selectPrice('basic')" id="price-basic">
+                    <h4>🥉 베이직 도깨비방망이 - 298,000원</h4>
+                    <p>✅ React Native 앱 + 웹 데모<br>✅ 기본 CRUD 기능 5개<br>✅ 1주일 A/S</p>
+                </div>
+                <div class="price-option" onclick="selectPrice('premium')" id="price-premium">
+                    <h4>🥈 프리미엄 도깨비방망이 - 598,000원 ⭐</h4>
+                    <p>✅ 베이직 + 백엔드 API<br>✅ AI 기능 포함<br>✅ 1개월 A/S + 무료 수정 3회</p>
+                </div>
+                <div class="price-option" onclick="selectPrice('supreme')" id="price-supreme">
+                    <h4>🥇 Supreme 도깨비방망이 - 1,498,000원</h4>
+                    <p>✅ 엔터프라이즈급 완전 상용화<br>✅ Docker + CI/CD<br>✅ 3개월 기술 파트너십</p>
+                </div>
+            </div>
+
+            <div class="order-step">
+                <h3>📞 연락처 정보</h3>
+                <div class="contact-form">
+                    <div class="form-group">
+                        <label>이름 *</label>
+                        <input type="text" id="customerName" placeholder="성함을 입력해주세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label>연락처 *</label>
+                        <input type="tel" id="customerPhone" placeholder="휴대폰 번호를 입력해주세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label>이메일</label>
+                        <input type="email" id="customerEmail" placeholder="이메일 주소 (선택사항)">
+                    </div>
+                    <div class="form-group">
+                        <label>앱 아이디어</label>
+                        <textarea id="orderAppIdea" rows="3" placeholder="어떤 앱을 만들고 싶으신지 간단히 설명해주세요"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="magic-button" onclick="submitOrder()" style="width: 100%;">
+                    🎉 주문 완료하기
+                </button>
+                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                    주문 후 1시간 내에 연락드려 상담을 진행합니다!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 챗봇 위젯 -->
+    <div class="chatbot-widget">
+        <button class="chatbot-button" onclick="toggleChatbot()">🤖</button>
+        <div id="chatbotPopup" class="chatbot-popup">
+            <div class="chatbot-header">
+                🪄 도깨비 상담사
+                <button onclick="toggleChatbot()" style="float: right; background: none; border: none; color: #1a1a2e; font-size: 1.2rem;">×</button>
+            </div>
+            <div class="chatbot-body" id="chatbotBody">
+                <div class="chat-message bot-message">
+                    안녕하세요! 뚝딱뚝딱 도깨비방망이 상담사입니다! 🪄<br>
+                    어떤 도움이 필요하신가요?
+                </div>
+                <div class="chat-message bot-message">
+                    💡 자주 묻는 질문:<br>
+                    • "가격이 어떻게 되나요?"<br>
+                    • "정말 1초에 만들어지나요?"<br>
+                    • "어떤 앱을 만들 수 있나요?"<br>
+                    • "상담 받고 싶어요"
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="if(event.key==='Enter') sendMessage()">
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function castMagic() {
+            const idea = document.getElementById('appIdea').value;
+            const resultArea = document.getElementById('resultArea');
+            
+            if (!idea.trim()) {
+                alert('도깨비도 어떤 앱을 만들지 알아야 방망이를 휘두를 수 있어요! 😄');
+                return;
+            }
+            
+            // 마법 시전 효과
+            resultArea.innerHTML = `
+                <div class="magic-loading">🪄</div>
+                <div style="font-size: 1.2rem; color: #ffd700;">뚝딱뚝딱 ${idea} 나와라 뚝딱!</div>
+            `;
+            
+            // 1초 후 결과 표시
+            setTimeout(() => {
+                resultArea.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✨🎉✨</div>
+                        <h3 style="color: #ffd700; margin-bottom: 1rem;">뚝딱! ${idea} 완성!</h3>
+                        <div style="background: rgba(255, 215, 0, 0.2); padding: 2rem; border-radius: 15px; margin: 1rem 0;">
+                            <div style="margin-bottom: 1rem;">📱 React Native 앱</div>
+                            <div style="margin-bottom: 1rem;">🌐 웹 데모</div>
+                            <div style="margin-bottom: 1rem;">🚀 CI/CD 파이프라인</div>
+                            <div style="margin-bottom: 1rem;">☁️ 클라우드 배포 설정</div>
+                            <div>📊 모니터링 시스템</div>
+                        </div>
+                        <button style="background: #ffd700; color: #1a1a2e; padding: 1rem 2rem; border: none; border-radius: 25px; margin-top: 1rem; cursor: pointer; font-weight: bold;" onclick="alert('🎊 축하합니다! 실제 ${idea} 소스코드를 받고 싶으시면 상담을 신청해주세요!')">
+                            💻 실제 소스코드 받기
+                        </button>
+                    </div>
+                `;
+            }, 1000);
+        }
+        
+        // 키보드 Enter 지원
+        document.getElementById('appIdea').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                castMagic();
+            }
+        });
+        
+        // 배경 마법 효과
+        function createMagicParticle() {
+            const particle = document.createElement('div');
+            particle.textContent = ['✨', '⭐', '🌟', '💫'][Math.floor(Math.random() * 4)];
+            particle.style.position = 'fixed';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = '100vh';
+            particle.style.fontSize = '2rem';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '1';
+            particle.style.animation = `magicFloat ${3 + Math.random() * 3}s ease-out forwards`;
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 6000);
+        }
+        
+        // CSS 애니메이션 동적 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes magicFloat {
+                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 주기적으로 마법 파티클 생성
+        setInterval(createMagicParticle, 2000);
+
+        // 주문 모달 관련 함수들
+        let selectedPrice = '';
+
+        function openOrderModal() {
+            document.getElementById('orderModal').style.display = 'flex';
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').style.display = 'none';
+        }
+
+        function selectPrice(type) {
+            // 모든 선택 해제
+            document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
+            
+            // 선택된 항목 표시
+            document.getElementById('price-' + type).classList.add('selected');
+            selectedPrice = type;
+        }
+
+        function submitOrder() {
+            const name = document.getElementById('customerName').value;
+            const phone = document.getElementById('customerPhone').value;
+            const email = document.getElementById('customerEmail').value;
+            const idea = document.getElementById('orderAppIdea').value;
+
+            if (!name || !phone) {
+                alert('성함과 연락처는 필수 입력사항입니다! 🙏');
+                return;
+            }
+
+            if (!selectedPrice) {
+                alert('상품을 선택해주세요! 🎯');
+                return;
+            }
+
+            // 주문 정보 정리
+            const priceNames = {
+                'basic': '베이직 도깨비방망이 (298,000원)',
+                'premium': '프리미엄 도깨비방망이 (598,000원)',
+                'supreme': 'Supreme 도깨비방망이 (1,498,000원)'
+            };
+
+            const orderInfo = `
+🎉 주문이 접수되었습니다!
+
+📋 주문 정보:
+• 상품: ${priceNames[selectedPrice]}
+• 성함: ${name}
+• 연락처: ${phone}
+• 이메일: ${email || '미입력'}
+• 앱 아이디어: ${idea || '상담 시 논의'}
+
+📞 1시간 내에 ${phone}로 연락드려서 
+   상세 상담을 진행하겠습니다!
+
+🪄 뚝딱뚝딱! 멋진 앱 만들어드릴게요! ✨
+            `;
+
+            alert(orderInfo);
+            closeOrderModal();
+
+            // 실제 구현 시에는 여기서 서버로 주문 정보 전송
+            console.log('주문 정보:', { name, phone, email, idea, selectedPrice });
+        }
+
+        // 챗봇 관련 함수들
+        function toggleChatbot() {
+            const popup = document.getElementById('chatbotPopup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // 사용자 메시지 추가
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            // 봇 응답 생성
+            setTimeout(() => {
+                const response = generateBotResponse(message);
+                addChatMessage(response, 'bot');
+            }, 500);
+        }
+
+        function addChatMessage(text, sender) {
+            const chatBody = document.getElementById('chatbotBody');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+            messageDiv.innerHTML = text;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function generateBotResponse(message) {
+            message = message.toLowerCase();
+
+            if (message.includes('가격') || message.includes('비용') || message.includes('얼마')) {
+                return `💰 가격 안내:<br>
+                🥉 베이직: 298,000원<br>
+                🥈 프리미엄: 598,000원 (추천!)<br>
+                🥇 Supreme: 1,498,000원<br><br>
+                자세한 상담을 받고 싶으시면 "상담 신청"이라고 말씀해주세요!`;
+            }
+            
+            if (message.includes('1초') || message.includes('시간') || message.includes('빠르')) {
+                return `⚡ 정말 1초에 만들어집니다!<br><br>
+                AI 시스템이 즉시 앱을 생성하고,<br>
+                추가 커스터마이징은 1-3일 소요됩니다.<br><br>
+                실제 시연을 보고 싶으시면 위에 있는<br>
+                "도깨비 방망이 휘두르기" 버튼을 눌러보세요!`;
+            }
+            
+            if (message.includes('앱') || message.includes('어떤') || message.includes('종류')) {
+                return `📱 만들 수 있는 앱 종류:<br>
+                • 🍕 배달/주문 앱<br>
+                • 🛒 쇼핑몰 앱<br>
+                • 📚 학습 관리 앱<br>
+                • 💪 헬스 관리 앱<br>
+                • 🏢 업무 관리 앱<br>
+                • 📊 데이터 분석 앱<br><br>
+                기본적으로 모든 종류의 앱이 가능해요!`;
+            }
+            
+            if (message.includes('상담') || message.includes('연락') || message.includes('문의')) {
+                return `📞 상담 신청 방법:<br><br>
+                1️⃣ 위의 "지금 주문하기" 버튼 클릭<br>
+                2️⃣ 연락처 정보 입력<br>
+                3️⃣ 1시간 내에 전화 상담!<br><br>
+                또는 아래 연락처로 직접 연락주세요:<br>
+                � 전화: 010-8031-5850<br>
+                📧 이메일: gywlsl3925@gmail.com<br>
+                � 카카오톡 오픈채팅: <a href="https://open.kakao.com/o/g6lSj7Kh" target="_blank" style="color: #ffd700;">바로가기</a>`;
+            }
+            
+            if (message.includes('안녕') || message.includes('처음') || message.includes('반가')) {
+                return `반갑습니다! 🪄<br><br>
+                뚝딱뚝딱 도깨비방망이는<br>
+                세계 최초 1초 앱 개발 시스템입니다!<br><br>
+                궁금한 점이 있으시면 언제든지 물어보세요!<br>
+                • 가격 문의<br>
+                • 개발 가능한 앱 종류<br>
+                • 상담 신청`;
+            }
+
+            return `네, 알겠습니다! 🪄<br><br>
+            더 자세한 상담이 필요하시면<br>
+            "상담 신청"이라고 말씀해주시거나<br>
+            위의 "지금 주문하기" 버튼을 눌러주세요!<br><br>
+            📞 1시간 내에 전화 상담을 도와드릴게요!`;
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('orderModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeOrderModal();
+            }
+        });
+    </script>
+
+    <!-- 연락처 섹션 -->
+    <div style="background: rgba(0, 0, 0, 0.5); padding: 3rem; text-align: center; margin-top: 4rem;">
+        <h2 style="color: #ffd700; margin-bottom: 2rem;">📞 연락처 정보</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 800px; margin: 0 auto;">
+            
+            <div style="background: rgba(255, 215, 0, 0.1); padding: 2rem; border-radius: 20px; border: 2px solid rgba(255, 215, 0, 0.3);">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">📞</div>
+                <h3 style="color: #ffd700; margin-bottom: 1rem;">전화 상담</h3>
+                <a href="tel:010-8031-5850" style="color: white; text-decoration: none; font-size: 1.2rem; font-weight: bold;">
+                    010-8031-5850
+                </a>
+                <p style="margin-top: 0.5rem; opacity: 0.8; font-size: 0.9rem;">24시간 언제든지</p>
+            </div>
+
+            <div style="background: rgba(255, 215, 0, 0.1); padding: 2rem; border-radius: 20px; border: 2px solid rgba(255, 215, 0, 0.3);">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">📧</div>
+                <h3 style="color: #ffd700; margin-bottom: 1rem;">이메일 문의</h3>
+                <a href="mailto:gywlsl3925@gmail.com" style="color: white; text-decoration: none; font-size: 1.1rem; font-weight: bold;">
+                    gywlsl3925@gmail.com
+                </a>
+                <p style="margin-top: 0.5rem; opacity: 0.8; font-size: 0.9rem;">자세한 상담 가능</p>
+            </div>
+
+            <div style="background: rgba(255, 215, 0, 0.1); padding: 2rem; border-radius: 20px; border: 2px solid rgba(255, 215, 0, 0.3);">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
+                <h3 style="color: #ffd700; margin-bottom: 1rem;">카카오톡 상담</h3>
+                <a href="https://open.kakao.com/o/g6lSj7Kh" target="_blank" style="background: linear-gradient(45deg, #ffd700, #ff69b4); color: #1a1a2e; padding: 0.5rem 1rem; border-radius: 15px; text-decoration: none; font-weight: bold; display: inline-block;">
+                    오픈채팅 참여하기
+                </a>
+                <p style="margin-top: 0.5rem; opacity: 0.8; font-size: 0.9rem;">실시간 채팅 상담</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 3rem; padding: 2rem; background: rgba(255, 215, 0, 0.05); border-radius: 15px;">
+            <h3 style="color: #ffd700; margin-bottom: 1rem;">🕐 상담 시간</h3>
+            <p style="margin-bottom: 0.5rem;">평일: 오전 9시 ~ 오후 6시</p>
+            <p style="margin-bottom: 0.5rem;">주말/공휴일: 오전 10시 ~ 오후 4시</p>
+            <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 1rem;">
+                ⚡ 긴급 상담은 카카오톡 오픈채팅을 이용해주세요!
+            </p>
+        </div>
+    </div>
+
+    <div style="background: rgba(0, 0, 0, 0.8); text-align: center; padding: 2rem; margin-top: 2rem;">
+        <p style="opacity: 0.6; font-size: 0.9rem;">
+            © 2024 뚝딱뚝딱 도깨비방망이 - 세계 최초 1초 앱 개발 시스템
+        </p>
+        <p style="opacity: 0.6; font-size: 0.8rem; margin-top: 0.5rem;">
+            모든 권리 보유 | 개인정보보호정책 | 이용약관
+        </p>
+    </div>
+</body>
+</html>
